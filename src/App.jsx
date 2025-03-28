@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/layouts/Sidebar";
 import Home from "./pages/Home";
 import Airports from "./pages/Airports";
+import Flights from "./pages/Flights";
 import './App.css'
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/airports" element={<Airports />} />
+            <Route path="/flights" element={<Flights />} />
             </Routes>
         </div>
       </div>

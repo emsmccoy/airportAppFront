@@ -3,9 +3,12 @@ import axios from '../../services/api';
 import { 
   Paper, 
   Box, 
-  Button, 
-  Card, 
-  CardContent, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow,
   Typography,
   CircularProgress,
   Alert 
@@ -21,10 +24,13 @@ const AirportList = () => {
       setLoading(true);
       const response = await axios.get("/airports");
       
+      // Handle the nested response structure
+      const responseData = response.data.content;
+      
       // Ensure we're working with an array
-      const data = Array.isArray(response.data) 
-        ? response.data 
-        : [response.data];
+      const data = Array.isArray(responseData) 
+        ? responseData 
+        : [responseData];
         
       setAirports(data);
     } catch (error) {
@@ -38,8 +44,6 @@ const AirportList = () => {
   useEffect(() => {
     fetchAirports();
   }, []);
-
-  console.log('Rendered airports:', airports);
 
   if (loading) {
     return (
@@ -58,40 +62,42 @@ const AirportList = () => {
   }
 
   return (
-    <Paper sx={{ padding: 2 }}>
-      <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
-        {airports.length > 0 ? (
-          airports.map((airport) => (
-            <Box
-              key={airport.id}
-              gridColumn={{ xs: "span 12", sm: "span 6", md: "span 3" }}
-            >
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" component="div">
-                    {airport.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Code: {airport.code}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    City: {airport.city}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Country: {airport.country}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-          ))
-        ) : (
-          <Box gridColumn="span 12">
-            <Alert severity="info">No airports found</Alert>
-          </Box>
-        )}
-      </Box>
-    </Paper>
-  );
+      <Paper sx={{ width: '100%', overflow: 'hidden', mt: 2 }}>
+        <Typography variant="h6" sx={{ p: 2 }}>
+          Airports List
+        </Typography>
+        <TableContainer sx={{ maxHeight: 600 }}>
+          <Table stickyHeader aria-label="airports table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>City</TableCell>
+                <TableCell>Country</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {airports.length > 0 ? (
+                airports.map((airport) => (
+                  <TableRow key={airport.id} hover>
+                    <TableCell>{airport.name}</TableCell>
+                    <TableCell>{airport.code}</TableCell>
+                    <TableCell>{airport.city}</TableCell>
+                    <TableCell>{airport.country}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    <Alert severity="info">No airports found</Alert>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    );
 };
 
 export default AirportList;
