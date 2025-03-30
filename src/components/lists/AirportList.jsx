@@ -1,44 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../../services/api'; 
-import { 
-  Paper, 
-  Box, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow,
+import axios from '../../services/api';
+import {
+  Box,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
   Typography,
+  Button,
   CircularProgress,
-  Alert 
+  Alert
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const AirportList = () => {
   const [airports, setAirports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchAirports = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/airports");
-      
-      // Handle the nested response structure
-      const responseData = response.data.content;
-      
-      // Ensure we're working with an array
-      const data = Array.isArray(responseData) 
-        ? responseData 
-        : [responseData];
-        
-      setAirports(data);
+      const response = await axios.get('/airports');
+      const data = response.data.content || response.data;
+      setAirports(Array.isArray(data) ? data : [data]);
     } catch (error) {
       console.error('Error fetching airports:', error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFlightsClick = (airportId) => {
+    navigate(`/airports/${airportId}/flights`);
+  };
+
+  const getAirportImage = (airport) => {
+    const searchTerm = `${airport.city}+${airport.name}`.replace(/\s+/g, '+');
+    return `https://source.unsplash.com/random/800x600/?${searchTerm},airport`;
   };
 
   useEffect(() => {
@@ -62,42 +63,39 @@ const AirportList = () => {
   }
 
   return (
-      <Paper sx={{ width: '100%', overflow: 'hidden', mt: 2 }}>
-        <Typography variant="h6" sx={{ p: 2 }}>
-          Airports List
-        </Typography>
-        <TableContainer sx={{ maxHeight: 600 }}>
-          <Table stickyHeader aria-label="airports table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Code</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>Country</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {airports.length > 0 ? (
-                airports.map((airport) => (
-                  <TableRow key={airport.id} hover>
-                    <TableCell>{airport.name}</TableCell>
-                    <TableCell>{airport.code}</TableCell>
-                    <TableCell>{airport.city}</TableCell>
-                    <TableCell>{airport.country}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} align="center">
-                    <Alert severity="info">No airports found</Alert>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-    );
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, p: 3 }}>
+      {airports.map((airport) => (
+        <Box key={airport.id} sx={{ flex: '1 1 calc(33.333% - 16px)', maxWidth: 'calc(33.333% - 16px)' }}>
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardMedia
+              component="img"
+              height="200"
+              image={getAirportImage(airport)}
+              alt={`${airport.name} image`}
+              sx={{ objectFit: 'cover' }}
+            />
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Typography gutterBottom variant="h5" component="div">
+                {airport.name} ({airport.code})
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {airport.city}, {airport.country}
+              </Typography>
+            </CardContent>
+            <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => handleFlightsClick(airport.id)}
+              >
+                Check Flights
+              </Button>
+            </CardActions>
+          </Card>
+        </Box>
+      ))}
+    </Box>
+  );
 };
 
 export default AirportList;

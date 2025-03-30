@@ -4,6 +4,7 @@ import Sidebar from "./components/layouts/Sidebar";
 import Home from "./pages/Home";
 import Airports from "./pages/Airports";
 import Flights from "./pages/Flights";
+import AirportFlightList from "./components/lists/AirportFlightList";
 import './App.css'
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/airports" element={<Airports />} />
+            <Route path="/airports/:id/flights" element={<AirportFlightList />} />
             <Route path="/flights" element={<Flights />} />
             </Routes>
         </div>
