@@ -15,7 +15,7 @@ const App = () => {
         <div style={{ flex: 1, padding: "20px" }}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/airports" element={<Airports />} />
+            <Route path="/airports/*" element={<Airports />} />
             <Route path="/airports/:id/flights" element={<AirportFlightList />} />
             <Route path="/flights" element={<Flights />} />
             </Routes>
