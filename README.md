@@ -1,12 +1,12 @@
-## # Airport App
+# Airport App
 
 ## Overview
 
 This document serves as a guide and log for the full-stack development of the **Airport App** project. It outlines the tasks completed, testing performed, estimated and actual time spent on tasks, impediments encountered, and new concepts learned.
 
-## PR Submission Checklist
+**Unsplash API** has been used for fetching images for the airports. Documentation regarding this can be found below.
 
-## **Completed Tasks**:
+# **Tasks**
 
 ### Backend
 
@@ -64,14 +64,14 @@ This document serves as a guide and log for the full-stack development of the *
 | Set up React project       | 1 hour         | 1 hour      |             |              |
 | Install dependencies       | 30 minutes     | 15 min      |             |              |
 | Organize project structure | 1 hour         | 1 hour      |             |              |
-| Create components          | -              | 5 hours     |             |              |
+| Create components          | -              | 7 hours     |             |              |
 | Implement ApiContext       | 2 hours        |             |             |              |
 | Develop custom hooks       | 3 hours        |             |             |              |
 | Create layout components   | 2 hours        | 1 hour      |             |              |
 | Set up routing             | 1 hour         | 1 hour      |             |              |
 | **Total**                  | **11 hours**   |             |             |              |
 
-## Error Documentation and Solutions
+# Error Documentation and Solutions
 
 ## Error: `Each child in a list should have a unique "key" prop`
 
@@ -113,3 +113,105 @@ This document serves as a guide and log for the full-stack development of the *
    - The actual array is nested under `content`
    
    - **This requires extracting `response.data.content`**
+
+# **Unsplash API Documentation**
+
+## **1. Overview**
+
+- **Purpose**: The Unsplash API has been integrated into the project to fetch high-quality images for each airport listed in the application, enhancing the visual appeal and user experience.
+
+## **2. Getting Started**
+
+- **Register as a Developer**:
+  
+  - Visit the Unsplash website and sign up as a developer to gain access to the API.
+
+- **Register Your Application**:
+  
+  - After logging in, navigate to the Developers page and click "New Application" to register your application. Initially, your application will be in **Demo Mode** with a limit of 50 requests per hour. To increase this limit, you'll need to request approval by providing screenshots of your application's use of Unsplash photos.
+
+## **3. Environment Setup**
+
+- **Create `.env` File**:
+  
+  - In your project, create an `.env` file to store sensitive information like API keys. For Vite, the environment variable should be named `VITE_UNSPLASH_ACCESS_KEY`.
+
+- **Include Access Key**:
+  
+  - Add your Unsplash API access key to the `.env` file:
+    
+    text
+    
+    `VITE_UNSPLASH_ACCESS_KEY=YOUR_ACCESS_KEY`
+
+## **4. API Integration**
+
+- **Fetching Images**:
+  
+  - Use the `useEffect` hook to fetch images when the airports data changes:
+    
+    ```jsx
+      useEffect(() => {
+        const fetchImages = async () => {
+          const images = await Promise.all(airports.map(airport => fetchUnsplashImage(airport.city)));
+          setAirportImages(images);
+        };
+        if (airports.length > 0) {
+          fetchImages();
+        }
+      }, [airports]);
+    ```
+  
+  - **Function to Fetch Images**:
+    
+    - Define a function to fetch images from Unsplash.
+    
+    ```jsx
+      const fetchUnsplashImage = async (searchTerm) => {
+        try {
+          const response = await axios.get(
+            `https://api.unsplash.com/search/photos`,
+            {
+              params: { query: searchTerm, per_page: 1 },
+              headers: {
+                Authorization: `Client-ID ${import.meta.env.VITE_UNSPLASH_ACCESS_KEY}`
+              }
+            }
+          );
+          return response.data.results[0]?.urls?.regular || '';
+        } catch (error) {
+          console.error('Error fetching image from Unsplash:', error);
+          return ''; 
+        }
+      };
+    ```
+
+- **Using Images in Render**:
+  
+  - In the render method, use the correct image URL from the `airportImages` state array by matching the index with the airport:
+    
+    ```jsx
+    
+      return (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, p: 3 }}>
+          {airports.map((airport, index) => (
+            <Box key={airport.id} sx={{ flex: '1 1 calc(33.333% - 16px)', maxWidth: 'calc(33.333% - 16px)' }}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={airportImages[index] || ''}
+                  alt={`${airport.name} image`}
+                  sx={{ objectFit: 'cover' }}
+                />
+    
+      
+              {/* rest of the render */}
+    
+      
+              </Card>
+            </Box>
+          ))}
+        </Box>
+      );
+    ```
