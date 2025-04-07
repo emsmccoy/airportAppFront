@@ -29,17 +29,12 @@ const FlightList = () => {
       try {
         setLoading(true);
         const response = await axios.get(`/flights?page=${currentPage}&size=5`);
-        
-        // Destructure using CORRECT property names from backend
-        const { 
-          flights: flightsData, 
-          currentPage: page, 
-          totalPages 
-        } = response.data;
+
+        console.log(response);
   
-        setFlights(flightsData || []); // Ensure array fallback
-        setCurrentPage(page);
-        setTotalPages(totalPages);
+        setFlights(response.data.content || []); 
+        setCurrentPage(response.data.number);
+        setTotalPages(response.data.totalPages);
   
       } catch (error) {
         setError(error.message);
@@ -87,7 +82,7 @@ const FlightList = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Flight #</TableCell>
+              <TableCell>Flight Code</TableCell>
               <TableCell>Departure</TableCell>
               <TableCell>Arrival</TableCell>
               <TableCell>From</TableCell>
@@ -125,12 +120,11 @@ const FlightList = () => {
         </Table>
       </TableContainer>
 
-      {/* Pagination - Fixed positioning and handlers */}
       <Box display="flex" justifyContent="center" mt={2}>
         <Pagination
           count={totalPages}
-          page={currentPage + 1} // Convert to 1-based index for MUI
-          onChange={(_, page) => setCurrentPage(page - 1)} // Convert back to 0-based
+          page={currentPage + 1}
+          onChange={(_, page) => setCurrentPage(page - 1)} 
           color="primary"
           showFirstButton
           showLastButton
